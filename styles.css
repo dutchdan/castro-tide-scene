@@ -13,11 +13,9 @@ html, body{
 
 text{
   font-family: "Heavitas", system-ui, sans-serif;
-  paint-order: stroke;
-  stroke: rgba(20,30,60,.22);
-  stroke-width: 2.5px;
-  stroke-linejoin: round;
 }
+/* drop shadow for legibility on both pale sky and darker water (no outline stroke) */
+text, #arrow{ filter: drop-shadow(0 4px 6px rgba(15,25,50,.5)); }
 #sun, #moon{ transition: opacity 2s ease; }
 #arrow{
   transition: transform 1.2s ease;
