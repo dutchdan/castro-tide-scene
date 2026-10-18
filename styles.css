@@ -1,0 +1,22 @@
+/* CastroTide v2 — portrait phone PWA (SPEC §5) */
+html, body{
+  height:100%; margin:0; overflow:hidden;
+  background:#BDE8F2; overscroll-behavior:none;
+  -webkit-user-select:none; user-select:none;
+}
+#scene{ position:fixed; inset:0; width:100%; height:100%; display:block; }
+
+text{
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  paint-order: stroke;
+  stroke: rgba(20,30,60,.22);
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+}
+#sun, #moon{ transition: opacity 2s ease; }
+#arrow{
+  transition: transform 1.2s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+#arrow.falling{ transform: rotate(180deg); }
