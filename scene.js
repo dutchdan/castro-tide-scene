@@ -3,9 +3,28 @@
    Portrait viewBox 400x867 (9:19.5). Single RAF loop; data read from window.DATA. */
 
 const NS = "http://www.w3.org/2000/svg";
-const W = 400, H = 867;
-const PI = Math.PI, TAU = 2 * PI;
 const svg = document.getElementById("scene");
+
+/* Fill the viewport exactly: viewBox aspect follows the real screen aspect,
+   so `meet` never letterboxes on any phone. All geometry is % of H. */
+const W = 400;
+let H = Math.round(W * (window.innerHeight / window.innerWidth));
+H = Math.max(680, Math.min(1120, H));              // sane portrait range
+svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+// big viewport change (rotation, URL-bar collapse) → rebuild at new aspect
+let rsT;
+function recheckAspect(){
+  clearTimeout(rsT);
+  rsT = setTimeout(() => {
+    const nh = Math.max(680, Math.min(1120, Math.round(W * innerHeight / innerWidth)));
+    if (Math.abs(nh - H) > 60) location.reload();
+  }, 500);
+}
+addEventListener("resize", recheckAspect);
+addEventListener("orientationchange", recheckAspect);
+
+const PI = Math.PI, TAU = 2 * PI;
 
 function el(name, attrs, parent){
   const n = document.createElementNS(NS, name);
