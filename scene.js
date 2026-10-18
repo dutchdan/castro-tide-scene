@@ -28,26 +28,32 @@ const rgb  = c => `rgb(${c[0]},${c[1]},${c[2]})`;
 const RMIN = -0.5, RMAX = 4.5;                 // tide range (m, chart datum)
 const Y_LOW = 0.70 * H, Y_HIGH = 0.86 * H;     // waterline at f=0 / f=1
 const sandY = x => 0.92*H - 0.015*H*Math.cos(TAU*(x/W - 0.35));   // §3.2 sand arc
-const SUN_X0 = 0.08*W, SUN_X1 = 0.92*W, SUN_BASE = 0.70*H, SUN_ARC = 0.30*H;
+const SUN_X0 = 0.08*W, SUN_X1 = 0.92*W;
+const SUN_R = 32, MOON_R = 24;                       // 2x the v2.0 sizes
+// whole disk stays within top 25%: lowest center = 25%H - r (at horizon ends),
+// apex center = 15.7%H so the disc top (apex - r) clears the title/air-temp header
+const orbCy = (r, p) => (0.25*H - r) - (0.25*H - r - 0.165*H) * Math.sin(PI*p);
 
 /* ---------- scene graph (draw order) ---------- */
 const skyRect   = el("rect", { x:0, y:0, width:W, height:H });
-const sunC      = el("circle", { r:16, id:"sun"  });
-const moonC     = el("circle", { r:12, id:"moon" });
+const sunC      = el("circle", { r:SUN_R,  id:"sun"  });
+const moonC     = el("circle", { r:MOON_R, id:"moon" });
 const cloudsG   = el("g", {});
 const backWaveP = el("path", {});
 const waterP    = el("path", {});
 const fishG     = el("g", {});
 const sandP     = el("path", {});
 
-const titleT = el("text", { x:W/2, y:44, "text-anchor":"middle", "font-size":15,
-                            "font-weight":600, "letter-spacing":3, fill:"#fff" });
+const titleT = el("text", { x:W/2, y:40, "text-anchor":"middle", "font-size":19,
+                            "font-weight":600, "letter-spacing":4, fill:"#fff" });
 titleT.textContent = "Castro-Urdiales";
-const airT = el("text", { x:18, y:52, "font-size":30, fill:"#fff", "font-weight":300 });
-const seaT = el("text", { x:18, y:sandY(24)-22, "font-size":24, fill:"rgba(255,255,255,.95)" });
-const cntT = el("text", { x:0.86*W, y:0.5*H+6, "text-anchor":"end", "font-size":17, fill:"#fff" });
-const arrowG = el("g", { id:"arrow" });
-el("path", { d:`M ${0.92*W} ${0.5*H-13} l 9 15 l -18 0 Z`, fill:"rgba(255,255,255,.9)" }, arrowG);
+const airT = el("text", { x:20, y:106, "font-size":42, fill:"#fff" });
+const seaT = el("text", { x:20, y:sandY(30)-32, "font-size":34, fill:"rgba(255,255,255,.95)" });
+const CNT_X = 0.94*W, CNT_Y = 0.5*H;
+const cntT = el("text", { x:CNT_X, y:CNT_Y+10, "text-anchor":"end", "font-size":28, fill:"#fff" });
+const arrowG = el("g", {});
+const arrowP = el("path", { d:"M0 -16 l 12 20 l -24 0 Z", id:"arrow",
+                             fill:"rgba(255,255,255,.95)" }, arrowG);
 
 /* sand (static curve) */
 (function(){
@@ -168,12 +174,12 @@ function tick(){ // once per second: data-driven values
     moonP = (now - wx.nightStart) / (wx.nightEnd - wx.nightStart);
   if (sunP != null){
     sunC.setAttribute("cx", (SUN_X0 + (SUN_X1-SUN_X0)*sunP).toFixed(1));
-    sunC.setAttribute("cy", (SUN_BASE - SUN_ARC*Math.sin(PI*sunP)).toFixed(1));
+    sunC.setAttribute("cy", orbCy(SUN_R, sunP).toFixed(1));
     sunC.setAttribute("fill", rgb(PAL.sun)); sunC.style.opacity = 1;
   } else sunC.style.opacity = 0;
   if (moonP != null){
     moonC.setAttribute("cx", (SUN_X0 + (SUN_X1-SUN_X0)*moonP).toFixed(1));
-    moonC.setAttribute("cy", (SUN_BASE - SUN_ARC*Math.sin(PI*moonP)).toFixed(1));
+    moonC.setAttribute("cy", orbCy(MOON_R, moonP).toFixed(1));
     moonC.setAttribute("fill", rgb(PAL.moon)); moonC.style.opacity = 1;
   } else moonC.style.opacity = 0;
 
@@ -182,7 +188,11 @@ function tick(){ // once per second: data-driven values
   seaT.textContent = (wx.seaTemp != null ? wx.seaTemp.toFixed(1) : "–") + " °C";
   const nxt = window.DATA.nextEventAfter(now);
   cntT.textContent = nxt ? window.DATA.fmtDur(nxt.t - now) : "";
-  arrowG.classList.toggle("falling", !(cur && cur.rising)); // up = rising
+  const falling = !(cur && cur.rising);
+  const halfW = (cntT.getComputedTextLength() || 100) / 2;
+  arrowG.setAttribute("transform",
+    `translate(${CNT_X - halfW} ${falling ? CNT_Y + 46 : CNT_Y - 40})`);
+  arrowP.classList.toggle("falling", falling); // rotate points it down
 }
 
 function frame(ms){

@@ -1,4 +1,9 @@
 /* CastroTide v2 — portrait phone PWA (SPEC §5) */
+@font-face{
+  font-family:"Heavitas";
+  src:url("Heavitas.ttf") format("truetype");
+  font-display:swap;
+}
 html, body{
   height:100%; margin:0; overflow:hidden;
   background:#BDE8F2; overscroll-behavior:none;
@@ -7,7 +12,7 @@ html, body{
 #scene{ position:fixed; inset:0; width:100%; height:100%; display:block; }
 
 text{
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Heavitas", system-ui, sans-serif;
   paint-order: stroke;
   stroke: rgba(20,30,60,.22);
   stroke-width: 2.5px;
