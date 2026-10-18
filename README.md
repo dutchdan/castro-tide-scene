@@ -21,8 +21,8 @@ No API keys required.
 
 ## Live demo
 
-GitHub Pages: enable it under Settings → Pages → Deploy from branch (`main`, `/`),
-then open `https://dutchdan.github.io/castro-tide-scene/`.
+**https://dutchdan.github.io/castro-tide-scene/** — open on your phone and
+"Add to Home Screen" for the standalone portrait PWA.
 
 Spec: see `SPEC.md` in the project folder (this repo is the build it describes).
 Predecessor: [dutchdan/castro-tides](https://github.com/dutchdan/castro-tides) (chart-based v1).
