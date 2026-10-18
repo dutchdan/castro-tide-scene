@@ -26,7 +26,7 @@ const rgb  = c => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 /* ---------- geometry (SPEC §3) ---------- */
 const RMIN = -0.5, RMAX = 4.5;                 // tide range (m, chart datum)
-const Y_LOW = 0.70 * H, Y_HIGH = 0.86 * H;     // waterline at f=0 / f=1
+const Y_HI = 0.70 * H, Y_LO = 0.86 * H;       // waterline y at f=1 (high, higher on screen) / f=0 (low)
 const sandY = x => 0.92*H - 0.015*H*Math.cos(TAU*(x/W - 0.35));   // §3.2 sand arc
 const SUN_X0 = 0.08*W, SUN_X1 = 0.92*W;
 const SUN_R = 32, MOON_R = 24;                       // 2x the v2.0 sizes
@@ -89,7 +89,7 @@ function makeFish(){
   el("ellipse", { rx:14, ry:8, fill:PAL.coral }, g);
   el("circle", { cx:7, cy:-2, r:1.6, fill:"#4a3b52" }, g);
   const f = { g, tail,
-    x:Math.random()*W, y:0.5*(Y_HIGH + sandY(W/2)),
+    x:Math.random()*W, y:0.5*(Y_LO + sandY(W/2)),
     head:(Math.random()<0.5?0:PI) + (Math.random()-0.5),
     spd:8 + Math.random()*12,               // 2–5 % W per second
     age:Math.random()*10, face:1 };
@@ -126,7 +126,7 @@ function daylight(now, sr, ss){
 }
 
 /* ---------- animation state ---------- */
-let waterY = 0.5 * (Y_LOW + Y_HIGH);
+let waterY = 0.5 * (Y_HI + Y_LO);
 let waterTarget = waterY;
 let windFrac = 0, rainFactor = 0;
 
@@ -149,7 +149,7 @@ function tick(){ // once per second: data-driven values
   // waterline target from tide height (§3.1)
   const cur = window.DATA.tideAt(now);
   const f = cur ? Math.min(1, Math.max(0, (cur.h - RMIN) / (RMAX - RMIN))) : 0.5;
-  waterTarget = Y_LOW + (Y_HIGH - Y_LOW) * f;
+  waterTarget = Y_LO + (Y_HI - Y_LO) * f;   // f=0 low → low on screen (86 %), f=1 high → 70 %
   windFrac = Math.min(1, Math.max(0, (wx.windKmh || 0) / 100));
   rainFactor = wx.rainFactor || 0;
 
