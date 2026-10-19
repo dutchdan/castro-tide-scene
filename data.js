@@ -239,9 +239,14 @@ async function refreshWeather(){
   try { await fetchSea(); } catch(e){}
 }
 
+let READY = false; const readyCbs = [];
+function markReady(){
+  if (READY) return; READY = true;
+  readyCbs.forEach(f => { try { f(); } catch(e){} });
+}
+
 function init(){
-  refreshTides();
-  refreshWeather();
+  Promise.allSettled([refreshTides(), refreshWeather()]).then(markReady);
   setInterval(() => { if (Date.now() - lastTideFetch > TIDE_REFRESH_MS) refreshTides(); }, 60 * 1000);
   setInterval(refreshWeather, WEATHER_REFRESH_MS);
   document.addEventListener("visibilitychange", () => {
@@ -256,6 +261,8 @@ window.DATA = {
   tideAt, nextEventAfter, fmtDur,
   events: () => EVENTS,
   tideOk: () => TIDE_OK,
+  ready: () => READY,
+  onReady: f => READY ? f() : readyCbs.push(f),
   wx: WX
 };
 

@@ -23,3 +23,20 @@ text, #arrow{ filter: drop-shadow(0 4px 6px rgba(15,25,50,.5)); }
   transform-origin: center;
 }
 #arrow.falling{ transform: rotate(180deg); }
+
+/* ---------- loading splash (shown until tides + weather first settle) ---------- */
+#splash{
+  position:fixed; inset:0; z-index:10;
+  background:linear-gradient(#BDE8F2, #8CCFE3);
+  display:flex; align-items:center; justify-content:center;
+  font-family:"Heavitas", system-ui, sans-serif; color:#fff;
+  transition:opacity .5s ease;
+}
+#splash.hide{ opacity:0; pointer-events:none; }
+.splash-inner{ display:flex; flex-direction:column; align-items:center; gap:16px;
+  text-shadow:0 4px 6px rgba(15,25,50,.5); }
+.splash-title{ font-size:26px; letter-spacing:.08em; text-transform:uppercase; }
+.splash-wave{ width:140px; animation:splash-bob 2.2s ease-in-out infinite; }
+.splash-wave path{ fill:none; stroke:#fff; stroke-width:4; stroke-linecap:round; opacity:.85; }
+.splash-sub{ font-size:14px; opacity:.85; }
+@keyframes splash-bob{ 0%,100%{ transform:translateY(5px) } 50%{ transform:translateY(-5px) } }

@@ -1,6 +1,6 @@
 /* CastroTide v2 service worker — shell cache-first; external APIs never cached
    (tide/weather data must stay fresh; app keeps last-good data in localStorage). */
-const CACHE = "castrotide-v2.8"; // bump this on every shell change so users get updates
+const CACHE = "castrotide-v2.9"; // bump this on every shell change so users get updates
 const SHELL = [
   "./", "./index.html", "./styles.css", "./data.js", "./scene.js", "./manifest.json",
   "./icon-192-v2.png", "./icon-512-v2.png", "./icon-maskable-512-v2.png"

@@ -83,7 +83,7 @@ const arrowP = el("path", { d:"M0 -16 l 12 20 l -24 0 Z", id:"arrow",
 /* ---------- clouds (SPEC §3.6) ---------- */
 const clouds = [];
 function makeCloud(){
-  const g = el("g", {}, cloudsG);
+  const g = el("g", { fill: rgb(PAL.cloudDay) }, cloudsG);   // pre-fill: never flash black
   const w = 46 + Math.random()*38;
   const n = 3 + (Math.random() < 0.4 ? 1 : 0);
   for (let i = 0; i < n; i++){
@@ -149,12 +149,11 @@ let waterTarget = waterY;
 let windFrac = 0, rainFactor = 0;
 
 function waveTop(baseY, t, ph){
-  const a1 = 7 * (1 + 0.2*windFrac), a2 = 3.5 * (1 + 0.2*windFrac);
+  // simple broad swell: two soft crests across the width, like the sand arc
+  const a = 9 * (1 + 0.2*windFrac);
   let d = "";
   for (let x = 0; x <= W; x += 8){
-    const y = baseY
-      + a1 * Math.sin(TAU*(x/(0.28*W) - (t+ph)/6))
-      + a2 * Math.sin(TAU*(x/(0.17*W) + (t+ph)/4.3));
+    const y = baseY + a * Math.sin(TAU*(x/(0.5*W) - (t+ph)/6));
     d += (x === 0 ? "M" : " L") + x + " " + y.toFixed(1);
   }
   return d;
@@ -240,4 +239,14 @@ function frame(ms){
 }
 
 tick();
-requestAnimationFrame(frame);
+
+// don't animate/render until first data load has settled (splash hides the rest)
+let started = false;
+function start(){
+  if (started) return; started = true;
+  const sp = document.getElementById("splash");
+  if (sp){ sp.classList.add("hide"); setTimeout(() => sp.remove(), 600); }
+  requestAnimationFrame(frame);
+}
+if (window.DATA.onReady) window.DATA.onReady(start);
+setTimeout(start, 6000);   // never leave the splash up forever on a dead network
