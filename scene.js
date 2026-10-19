@@ -148,13 +148,16 @@ let waterY = 0.5 * (Y_HI + Y_LO);
 let waterTarget = waterY;
 let windFrac = 0, rainFactor = 0;
 
-function waveTop(baseY, t, period, wl){
-  // simple broad swell; period/wl differ front-vs-back so the two layers drift
-  // at different speeds (deeper swell moves slower = the wave illusion)
-  const a = 9 * (1 + 0.2*windFrac);
+function waveTop(baseY, t, period, wl, period2, wl2){
+  // broad swell PLUS a slower counter-moving swell of long wavelength: their
+  // interference makes crests rise and fall (up-down wave motion), instead of
+  // one fixed profile merely sliding sideways. Layers keep different drift
+  // speeds (deeper swell slower). All wavelengths stay long = simple 2-top look.
+  const a = 6.5 * (1 + 0.2*windFrac);
   let d = "";
   for (let x = 0; x <= W; x += 8){
-    const y = baseY + a * Math.sin(TAU*(x/(wl*W) - t/period));
+    const y = baseY + a * ( Math.sin(TAU*(x/(wl*W)  - t/period))
+                           + 0.55 * Math.sin(TAU*(x/(wl2*W) + t/period2)) );
     d += (x === 0 ? "M" : " L") + x + " " + y.toFixed(1);
   }
   return d;
@@ -225,8 +228,8 @@ function frame(ms){
   waterY += (waterTarget - waterY) * (1 - Math.exp(-2.2 * dt));
 
   // waterline + back wave (§3.2)
-  waterP.setAttribute("d", waveTop(waterY, t, 6, 0.5) + ` L${W} ${H} L0 ${H} Z`);
-  backWaveP.setAttribute("d", waveTop(waterY - 10, t, 10.5, 0.62) + ` L${W} ${H} L0 ${H} Z`);
+  waterP.setAttribute("d", waveTop(waterY, t, 6, 0.5, 8.5, 0.66) + ` L${W} ${H} L0 ${H} Z`);
+  backWaveP.setAttribute("d", waveTop(waterY - 10, t, 10.5, 0.62, 13, 0.48) + ` L${W} ${H} L0 ${H} Z`);
 
   // clouds drift left→right, wrap (SPEC §3.6)
   const vxBase = windFrac * W / 45; // 100 km/h -> full width in ~45 s
