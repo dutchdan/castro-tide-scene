@@ -44,7 +44,6 @@ const mix  = (a,b,t) => a.map((v,i) => Math.round(v + (b[i]-v) * t));
 const rgb  = c => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 /* ---------- geometry (SPEC §3) ---------- */
-const RMIN = -0.5, RMAX = 4.5;                 // tide range (m, chart datum)
 const Y_HI = 0.70 * H, Y_LO = 0.86 * H;       // waterline y at f=1 (high, higher on screen) / f=0 (low)
 const sandY = x => 0.92*H - 0.015*H*Math.cos(TAU*(x/W - 0.35));   // §3.2 sand arc
 const SUN_X0 = 0.08*W, SUN_X1 = 0.92*W;
@@ -165,9 +164,12 @@ let lastTick = 0, lastFrame = performance.now();
 
 function tick(){ // once per second: data-driven values
   const now = Date.now(), wx = window.DATA.wx;
-  // waterline target from tide height (§3.1)
+  // waterline target from TIME phase between extrema (§3.1)
   const cur = window.DATA.tideAt(now);
-  const f = cur ? Math.min(1, Math.max(0, (cur.h - RMIN) / (RMAX - RMIN))) : 0.5;
+  /* Every low tide → phase 0 (y=86 %H), every high tide → phase 1 (y=70 %H),
+     independent of absolute height, so even small tidal ranges use the full
+     16 % swing. */
+  const f = cur ? cur.phase : 0.5;
   waterTarget = Y_LO + (Y_HI - Y_LO) * f;   // f=0 low → low on screen (86 %), f=1 high → 70 %
   windFrac = Math.min(1, Math.max(0, (wx.windKmh || 0) / 100));
   rainFactor = wx.rainFactor || 0;

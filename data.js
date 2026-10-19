@@ -118,7 +118,10 @@ function tideAt(t){
     if (t >= a.t && t <= b.t){
       const f = (b.t === a.t) ? 0 : (t - a.t) / (b.t - a.t);
       const mid = (a.h + b.h) / 2, amp = (b.h - a.h) / 2;
-      return { h: mid - amp * Math.cos(Math.PI * f), rising: b.h > a.h };
+      const s = (1 - Math.cos(Math.PI * f)) / 2;   // eased 0→1 time phase between extrema
+      const rising = b.h > a.h;
+      return { h: mid - amp * Math.cos(Math.PI * f), rising,
+               phase: rising ? s : 1 - s };
     }
   }
   return null;
