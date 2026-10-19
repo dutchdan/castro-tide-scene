@@ -148,12 +148,13 @@ let waterY = 0.5 * (Y_HI + Y_LO);
 let waterTarget = waterY;
 let windFrac = 0, rainFactor = 0;
 
-function waveTop(baseY, t, ph){
-  // simple broad swell: two soft crests across the width, like the sand arc
+function waveTop(baseY, t, period, wl){
+  // simple broad swell; period/wl differ front-vs-back so the two layers drift
+  // at different speeds (deeper swell moves slower = the wave illusion)
   const a = 9 * (1 + 0.2*windFrac);
   let d = "";
   for (let x = 0; x <= W; x += 8){
-    const y = baseY + a * Math.sin(TAU*(x/(0.5*W) - (t+ph)/6));
+    const y = baseY + a * Math.sin(TAU*(x/(wl*W) - t/period));
     d += (x === 0 ? "M" : " L") + x + " " + y.toFixed(1);
   }
   return d;
@@ -224,8 +225,8 @@ function frame(ms){
   waterY += (waterTarget - waterY) * (1 - Math.exp(-2.2 * dt));
 
   // waterline + back wave (§3.2)
-  waterP.setAttribute("d", waveTop(waterY, t, 0) + ` L${W} ${H} L0 ${H} Z`);
-  backWaveP.setAttribute("d", waveTop(waterY - 10, t, 1.5) + ` L${W} ${H} L0 ${H} Z`);
+  waterP.setAttribute("d", waveTop(waterY, t, 6, 0.5) + ` L${W} ${H} L0 ${H} Z`);
+  backWaveP.setAttribute("d", waveTop(waterY - 10, t, 10.5, 0.62) + ` L${W} ${H} L0 ${H} Z`);
 
   // clouds drift left→right, wrap (SPEC §3.6)
   const vxBase = windFrac * W / 45; // 100 km/h -> full width in ~45 s
